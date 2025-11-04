@@ -1,21 +1,21 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { VitePWA } from 'vite-plugin-pwa';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  base: '/cs/',
+  base: "/CipherDispatch/",
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: "autoUpdate",
       manifest: {
-        name: 'Auto Appraisal',
-        short_name: 'Appraisal',
-        start_url: '/',
-        display: 'standalone',
-        background_color: '#ffffff',
-        icons: []
-      }
-    })
-  ]
+        name: "Auto Appraisal",
+        short_name: "Appraisal",
+        start_url: "/",
+        display: "standalone",
+        background_color: "#ffffff",
+        icons: [],
+      },
+    }),
+  ],
 });

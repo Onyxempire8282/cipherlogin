@@ -28,16 +28,17 @@ export default function Login() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        padding: 16,
+        background: "linear-gradient(135deg, #1a202c 0%, #2d3748 100%)",
       }}
     >
       <div
         style={{
-          background: "white",
+          background: "rgba(45, 55, 72, 0.85)",
+          backdropFilter: "blur(10px)",
           padding: 40,
-          borderRadius: 12,
-          boxShadow: "0 10px 40px rgba(0,0,0,0.2)",
+          borderRadius: 16,
+          boxShadow: "0 15px 35px rgba(0,0,0,0.3)",
+          border: "1px solid rgba(255,255,255,0.1)",
           width: "100%",
           maxWidth: 400,
         }}
@@ -47,7 +48,7 @@ export default function Login() {
             marginTop: 0,
             marginBottom: 32,
             textAlign: "center",
-            color: "#333",
+            color: "#e2e8f0",
           }}
         >
           Auto Appraisal Login
@@ -59,7 +60,7 @@ export default function Login() {
                 display: "block",
                 marginBottom: 8,
                 fontWeight: "bold",
-                color: "#555",
+                color: "#e2e8f0",
               }}
             >
               Email
@@ -72,9 +73,11 @@ export default function Login() {
                 width: "100%",
                 padding: 12,
                 fontSize: 16,
-                border: "1px solid #ddd",
+                border: "1px solid #4a5568",
                 borderRadius: 6,
                 boxSizing: "border-box",
+                background: "#2d3748",
+                color: "#e2e8f0",
               }}
             />
           </div>
@@ -84,7 +87,7 @@ export default function Login() {
                 display: "block",
                 marginBottom: 8,
                 fontWeight: "bold",
-                color: "#555",
+                color: "#e2e8f0",
               }}
             >
               Password
@@ -98,9 +101,11 @@ export default function Login() {
                 width: "100%",
                 padding: 12,
                 fontSize: 16,
-                border: "1px solid #ddd",
+                border: "1px solid #4a5568",
                 borderRadius: 6,
                 boxSizing: "border-box",
+                background: "#2d3748",
+                color: "#e2e8f0",
               }}
             />
           </div>
@@ -111,15 +116,21 @@ export default function Login() {
               padding: 14,
               fontSize: 16,
               fontWeight: "bold",
-              background: "#667eea",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               color: "white",
               border: "none",
               borderRadius: 6,
               cursor: "pointer",
               marginTop: 8,
             }}
-            onMouseOver={(e) => (e.currentTarget.style.background = "#5568d3")}
-            onMouseOut={(e) => (e.currentTarget.style.background = "#667eea")}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.background =
+                "linear-gradient(135deg, #764ba2 0%, #667eea 100%)")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.background =
+                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)")
+            }
           >
             Sign In
           </button>

@@ -55,7 +55,13 @@ export default function MyClaims() {
   }, [showCompleted]);
 
   return (
-    <div style={{ padding: 16 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #1a202c 0%, #2d3748 100%)",
+        padding: 16,
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -69,7 +75,7 @@ export default function MyClaims() {
             to="/"
             style={{
               padding: "8px 16px",
-              background: "#6c757d",
+              background: "#4a5568",
               color: "white",
               textDecoration: "none",
               borderRadius: 4,
@@ -78,7 +84,7 @@ export default function MyClaims() {
           >
             ← Home
           </Link>
-          <h3 style={{ margin: 0 }}>
+          <h3 style={{ margin: 0, color: "#e2e8f0" }}>
             {showCompleted ? "My Completed Claims" : "My Active Claims"}
           </h3>
         </div>
@@ -86,7 +92,7 @@ export default function MyClaims() {
           onClick={() => setShowCompleted(!showCompleted)}
           style={{
             padding: "8px 16px",
-            background: showCompleted ? "#6c757d" : "#4CAF50",
+            background: showCompleted ? "#4a5568" : "#10b981",
             color: "white",
             border: "none",
             borderRadius: 4,
@@ -109,23 +115,23 @@ export default function MyClaims() {
             key={r.id}
             to={`/claim/${r.id}`}
             style={{
-              border: "1px solid #ddd",
+              border: "1px solid #4a5568",
               borderRadius: 8,
               padding: 16,
-              background: "white",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              background: "#2d3748",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
               textDecoration: "none",
-              color: "inherit",
+              color: "#e2e8f0",
               transition: "transform 0.2s, box-shadow 0.2s",
               cursor: "pointer",
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = "translateY(-4px)";
-              e.currentTarget.style.boxShadow = "0 6px 12px rgba(0,0,0,0.15)";
+              e.currentTarget.style.boxShadow = "0 6px 12px rgba(0,0,0,0.7)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+              e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.5)";
             }}
           >
             <div style={{ marginBottom: 12 }}>
@@ -134,7 +140,7 @@ export default function MyClaims() {
                   fontSize: 18,
                   fontWeight: "bold",
                   marginBottom: 8,
-                  color: "#333",
+                  color: "#e2e8f0",
                 }}
               >
                 #{r.claim_number}
@@ -166,22 +172,26 @@ export default function MyClaims() {
                 fontSize: 14,
                 marginBottom: 12,
                 paddingBottom: 12,
-                borderBottom: "1px solid #eee",
+                borderBottom: "1px solid #4a5568",
               }}
             >
-              <div style={{ color: "#666", marginBottom: 4 }}>
+              <div style={{ color: "#a0aec0", marginBottom: 4 }}>
                 <strong>Customer:</strong> {r.customer_name}
               </div>
             </div>
 
             <div style={{ fontSize: 13, marginBottom: 12 }}>
               <div
-                style={{ color: "#333", fontWeight: "bold", marginBottom: 6 }}
+                style={{
+                  color: "#e2e8f0",
+                  fontWeight: "bold",
+                  marginBottom: 6,
+                }}
               >
                 📅 Appointment
               </div>
               {r.appointment_start ? (
-                <div style={{ color: "#666", fontSize: 12 }}>
+                <div style={{ color: "#a0aec0", fontSize: 12 }}>
                   {new Date(r.appointment_start).toLocaleDateString("en-US", {
                     weekday: "short",
                     month: "short",
@@ -193,7 +203,11 @@ export default function MyClaims() {
                 </div>
               ) : (
                 <div
-                  style={{ color: "#999", fontSize: 12, fontStyle: "italic" }}
+                  style={{
+                    color: "#718096",
+                    fontSize: 12,
+                    fontStyle: "italic",
+                  }}
                 >
                   No appointment scheduled
                 </div>
@@ -202,19 +216,27 @@ export default function MyClaims() {
 
             <div style={{ fontSize: 13 }}>
               <div
-                style={{ color: "#333", fontWeight: "bold", marginBottom: 6 }}
+                style={{
+                  color: "#e2e8f0",
+                  fontWeight: "bold",
+                  marginBottom: 6,
+                }}
               >
                 🚗 Vehicle
               </div>
               {r.vehicle_year || r.vehicle_make || r.vehicle_model ? (
-                <div style={{ color: "#666", fontSize: 12 }}>
+                <div style={{ color: "#a0aec0", fontSize: 12 }}>
                   {r.vehicle_year && `${r.vehicle_year} `}
                   {r.vehicle_make && `${r.vehicle_make} `}
                   {r.vehicle_model && r.vehicle_model}
                 </div>
               ) : (
                 <div
-                  style={{ color: "#999", fontSize: 12, fontStyle: "italic" }}
+                  style={{
+                    color: "#718096",
+                    fontSize: 12,
+                    fontStyle: "italic",
+                  }}
                 >
                   No vehicle info
                 </div>
@@ -223,7 +245,7 @@ export default function MyClaims() {
           </Link>
         ))}
         {rows.length === 0 && (
-          <div style={{ textAlign: "center", padding: 48, color: "#999" }}>
+          <div style={{ textAlign: "center", padding: 48, color: "#a0aec0" }}>
             No claims assigned to you yet.
           </div>
         )}

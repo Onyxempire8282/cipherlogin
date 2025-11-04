@@ -65,7 +65,13 @@ export default function AdminClaims() {
   }, [showArchived]);
 
   return (
-    <div style={{ padding: 16 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #1a202c 0%, #2d3748 100%)",
+        padding: 16,
+      }}
+    >
       <div
         style={{
           display: "flex",
@@ -79,7 +85,7 @@ export default function AdminClaims() {
             to="/"
             style={{
               padding: "8px 16px",
-              background: "#6c757d",
+              background: "#4a5568",
               color: "white",
               textDecoration: "none",
               borderRadius: 4,
@@ -88,7 +94,7 @@ export default function AdminClaims() {
           >
             ← Home
           </Link>
-          <h3 style={{ margin: 0 }}>
+          <h3 style={{ margin: 0, color: "#e2e8f0" }}>
             {showArchived ? "Archived Claims" : "Active Claims"}
           </h3>
         </div>
@@ -97,7 +103,7 @@ export default function AdminClaims() {
             onClick={() => setShowArchived(!showArchived)}
             style={{
               padding: "8px 16px",
-              background: showArchived ? "#6c757d" : "#FFC107",
+              background: showArchived ? "#4a5568" : "#f59e0b",
               color: "white",
               border: "none",
               borderRadius: 4,
@@ -111,10 +117,11 @@ export default function AdminClaims() {
             to="/admin/claims/new"
             style={{
               padding: "8px 16px",
-              background: "#0066cc",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
               color: "white",
               textDecoration: "none",
               borderRadius: 4,
+              fontWeight: "bold",
             }}
           >
             + New Claim
@@ -133,23 +140,23 @@ export default function AdminClaims() {
             key={r.id}
             to={`/claim/${r.id}`}
             style={{
-              border: "1px solid #ddd",
+              border: "1px solid #4a5568",
               borderRadius: 8,
               padding: 16,
-              background: "white",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              background: "#2d3748",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
               textDecoration: "none",
-              color: "inherit",
+              color: "#e2e8f0",
               transition: "transform 0.2s, box-shadow 0.2s",
               cursor: "pointer",
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = "translateY(-4px)";
-              e.currentTarget.style.boxShadow = "0 6px 12px rgba(0,0,0,0.15)";
+              e.currentTarget.style.boxShadow = "0 6px 12px rgba(0,0,0,0.7)";
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
+              e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.5)";
             }}
           >
             <div style={{ marginBottom: 12 }}>
@@ -158,7 +165,7 @@ export default function AdminClaims() {
                   fontSize: 18,
                   fontWeight: "bold",
                   marginBottom: 8,
-                  color: "#333",
+                  color: "#e2e8f0",
                 }}
               >
                 #{r.claim_number}
@@ -190,22 +197,26 @@ export default function AdminClaims() {
                 fontSize: 14,
                 marginBottom: 12,
                 paddingBottom: 12,
-                borderBottom: "1px solid #eee",
+                borderBottom: "1px solid #4a5568",
               }}
             >
-              <div style={{ color: "#666", marginBottom: 4 }}>
+              <div style={{ color: "#a0aec0", marginBottom: 4 }}>
                 <strong>Customer:</strong> {r.customer_name}
               </div>
             </div>
 
             <div style={{ fontSize: 13, marginBottom: 12 }}>
               <div
-                style={{ color: "#333", fontWeight: "bold", marginBottom: 6 }}
+                style={{
+                  color: "#e2e8f0",
+                  fontWeight: "bold",
+                  marginBottom: 6,
+                }}
               >
                 � Appointment
               </div>
               {r.appointment_start ? (
-                <div style={{ color: "#666", fontSize: 12 }}>
+                <div style={{ color: "#a0aec0", fontSize: 12 }}>
                   <strong>Start:</strong>{" "}
                   {new Date(r.appointment_start).toLocaleDateString("en-US", {
                     weekday: "short",
@@ -218,7 +229,11 @@ export default function AdminClaims() {
                 </div>
               ) : (
                 <div
-                  style={{ color: "#999", fontSize: 12, fontStyle: "italic" }}
+                  style={{
+                    color: "#718096",
+                    fontSize: 12,
+                    fontStyle: "italic",
+                  }}
                 >
                   No appointment scheduled
                 </div>
@@ -227,24 +242,34 @@ export default function AdminClaims() {
 
             <div style={{ fontSize: 13, marginBottom: 12 }}>
               <div
-                style={{ color: "#333", fontWeight: "bold", marginBottom: 6 }}
+                style={{
+                  color: "#e2e8f0",
+                  fontWeight: "bold",
+                  marginBottom: 6,
+                }}
               >
-                �🚗 Vehicle Info
+                � Vehicle Info
               </div>
               {r.vin && (
-                <div style={{ color: "#666", fontSize: 12, marginBottom: 2 }}>
+                <div
+                  style={{ color: "#a0aec0", fontSize: 12, marginBottom: 2 }}
+                >
                   <strong>VIN:</strong> {r.vin.substring(0, 10)}...
                 </div>
               )}
               {r.vehicle_year || r.vehicle_make || r.vehicle_model ? (
-                <div style={{ color: "#666", fontSize: 12 }}>
+                <div style={{ color: "#a0aec0", fontSize: 12 }}>
                   {r.vehicle_year && `${r.vehicle_year} `}
                   {r.vehicle_make && `${r.vehicle_make} `}
                   {r.vehicle_model && r.vehicle_model}
                 </div>
               ) : (
                 <div
-                  style={{ color: "#999", fontSize: 12, fontStyle: "italic" }}
+                  style={{
+                    color: "#718096",
+                    fontSize: 12,
+                    fontStyle: "italic",
+                  }}
                 >
                   No vehicle info
                 </div>
@@ -255,10 +280,10 @@ export default function AdminClaims() {
               style={{
                 fontSize: 13,
                 paddingTop: 12,
-                borderTop: "1px solid #eee",
+                borderTop: "1px solid #4a5568",
               }}
             >
-              <div style={{ color: "#666" }}>
+              <div style={{ color: "#a0aec0" }}>
                 <strong>👤 Assigned:</strong>{" "}
                 {r.assigned_to ? "Yes" : "Unassigned"}
               </div>
@@ -266,7 +291,7 @@ export default function AdminClaims() {
           </Link>
         ))}
         {rows.length === 0 && (
-          <div style={{ textAlign: "center", padding: 48, color: "#999" }}>
+          <div style={{ textAlign: "center", padding: 48, color: "#a0aec0" }}>
             No claims yet. Create your first claim!
           </div>
         )}

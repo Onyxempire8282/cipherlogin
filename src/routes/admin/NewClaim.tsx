@@ -50,6 +50,15 @@ async function geocode(fullAddr: string) {
 }
 
 export default function NewClaim() {
+  const inputStyle = {
+    padding: 12,
+    fontSize: 16,
+    border: "1px solid #4a5568",
+    borderRadius: 6,
+    background: "#2d3748",
+    color: "#e2e8f0",
+  };
+
   const [form, setForm] = useState<Claim>({
     claim_number: "",
     customer_name: "",
@@ -151,219 +160,308 @@ export default function NewClaim() {
   };
 
   return (
-    <div style={{ padding: 16, display: "grid", gap: 8, maxWidth: 800 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #1a202c 0%, #2d3748 100%)",
+        padding: 16,
+      }}
+    >
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
+          maxWidth: 800,
+          margin: "0 auto",
+          display: "grid",
+          gap: 8,
         }}
       >
-        <h3 style={{ margin: 0 }}>New Claim</h3>
-        <div style={{ display: "flex", gap: 8 }}>
-          <Link
-            to="/admin/claims"
-            style={{
-              padding: "8px 16px",
-              background: "#6c757d",
-              color: "white",
-              textDecoration: "none",
-              borderRadius: 4,
-              fontWeight: "bold",
-            }}
-          >
-            ← Back to Claims
-          </Link>
-          <Link
-            to="/"
-            style={{
-              padding: "8px 16px",
-              background: "#6c757d",
-              color: "white",
-              textDecoration: "none",
-              borderRadius: 4,
-              fontWeight: "bold",
-            }}
-          >
-            ← Home
-          </Link>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 16,
+            background: "#2d3748",
+            border: "1px solid #4a5568",
+            padding: 16,
+            borderRadius: 8,
+          }}
+        >
+          <h3 style={{ margin: 0, color: "#e2e8f0" }}>New Claim</h3>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link
+              to="/admin/claims"
+              style={{
+                padding: "8px 16px",
+                background: "#4a5568",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: 4,
+                fontWeight: "bold",
+              }}
+            >
+              ← Back to Claims
+            </Link>
+            <Link
+              to="/"
+              style={{
+                padding: "8px 16px",
+                background: "#4a5568",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: 4,
+                fontWeight: "bold",
+              }}
+            >
+              ← Home
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <h4>Claim Information</h4>
-      <input
-        placeholder="Claim #"
-        value={form.claim_number}
-        onChange={(e) => setForm({ ...form, claim_number: e.target.value })}
-      />
-      <input
-        placeholder="Customer name"
-        value={form.customer_name}
-        onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
-      />
-      <input
-        placeholder="Phone"
-        value={form.phone || ""}
-        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-      />
-      <input
-        placeholder="Email"
-        value={form.email || ""}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
+        <h4 style={{ color: "#e2e8f0", marginTop: 16 }}>Claim Information</h4>
+        <input
+          placeholder="Claim #"
+          value={form.claim_number}
+          onChange={(e) => setForm({ ...form, claim_number: e.target.value })}
+          style={{
+            padding: 12,
+            fontSize: 16,
+            border: "1px solid #4a5568",
+            borderRadius: 6,
+            background: "#2d3748",
+            color: "#e2e8f0",
+          }}
+        />
+        <input
+          placeholder="Customer name"
+          value={form.customer_name}
+          onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+          style={inputStyle}
+        />
+        <input
+          placeholder="Phone"
+          value={form.phone || ""}
+          onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          style={inputStyle}
+        />
+        <input
+          placeholder="Email"
+          value={form.email || ""}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          style={inputStyle}
+        />
 
-      <h4>Vehicle Information</h4>
-      <input
-        placeholder="VIN"
-        value={form.vin || ""}
-        onChange={(e) => setForm({ ...form, vin: e.target.value })}
-      />
-      <input
-        placeholder="Year"
-        type="number"
-        value={form.vehicle_year || ""}
-        onChange={(e) =>
-          setForm({
-            ...form,
-            vehicle_year: e.target.value ? parseInt(e.target.value) : undefined,
-          })
-        }
-      />
-      <input
-        placeholder="Make"
-        value={form.vehicle_make || ""}
-        onChange={(e) => setForm({ ...form, vehicle_make: e.target.value })}
-      />
-      <input
-        placeholder="Model"
-        value={form.vehicle_model || ""}
-        onChange={(e) => setForm({ ...form, vehicle_model: e.target.value })}
-      />
+        <h4 style={{ color: "#e2e8f0", marginTop: 16 }}>Vehicle Information</h4>
+        <input
+          placeholder="VIN"
+          value={form.vin || ""}
+          onChange={(e) => setForm({ ...form, vin: e.target.value })}
+          style={inputStyle}
+        />
+        <input
+          placeholder="Year"
+          type="number"
+          value={form.vehicle_year || ""}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              vehicle_year: e.target.value
+                ? parseInt(e.target.value)
+                : undefined,
+            })
+          }
+          style={inputStyle}
+        />
+        <input
+          placeholder="Make"
+          value={form.vehicle_make || ""}
+          onChange={(e) => setForm({ ...form, vehicle_make: e.target.value })}
+          style={inputStyle}
+        />
+        <input
+          placeholder="Model"
+          value={form.vehicle_model || ""}
+          onChange={(e) => setForm({ ...form, vehicle_model: e.target.value })}
+          style={inputStyle}
+        />
 
-      <h4>Accident Description</h4>
-      <textarea
-        placeholder="Describe the accident and damage..."
-        value={form.notes || ""}
-        onChange={(e) => setForm({ ...form, notes: e.target.value })}
-        rows={4}
-        style={{ resize: "vertical" }}
-      />
+        <h4 style={{ color: "#e2e8f0", marginTop: 16 }}>
+          Accident Description
+        </h4>
+        <textarea
+          placeholder="Describe the accident and damage..."
+          value={form.notes || ""}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          rows={4}
+          style={{
+            ...inputStyle,
+            resize: "vertical",
+          }}
+        />
 
-      <h4>Location</h4>
-      <input
-        placeholder="Address line 1"
-        value={form.address_line1}
-        onChange={(e) => setForm({ ...form, address_line1: e.target.value })}
-      />
-      <input
-        placeholder="Address line 2 (optional)"
-        value={form.address_line2 || ""}
-        onChange={(e) => setForm({ ...form, address_line2: e.target.value })}
-      />
-      <input
-        placeholder="City"
-        value={form.city || ""}
-        onChange={(e) => setForm({ ...form, city: e.target.value })}
-      />
-      <input
-        placeholder="State"
-        value={form.state || ""}
-        onChange={(e) => setForm({ ...form, state: e.target.value })}
-      />
-      <input
-        placeholder="Postal code"
-        value={form.postal_code || ""}
-        onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
-      />
+        <h4 style={{ color: "#e2e8f0", marginTop: 16 }}>Location</h4>
+        <input
+          placeholder="Address line 1"
+          value={form.address_line1}
+          onChange={(e) => setForm({ ...form, address_line1: e.target.value })}
+          style={inputStyle}
+        />
+        <input
+          placeholder="Address line 2 (optional)"
+          value={form.address_line2 || ""}
+          onChange={(e) => setForm({ ...form, address_line2: e.target.value })}
+          style={inputStyle}
+        />
+        <input
+          placeholder="City"
+          value={form.city || ""}
+          onChange={(e) => setForm({ ...form, city: e.target.value })}
+          style={inputStyle}
+        />
+        <input
+          placeholder="State"
+          value={form.state || ""}
+          onChange={(e) => setForm({ ...form, state: e.target.value })}
+          style={inputStyle}
+        />
+        <input
+          placeholder="Postal code"
+          value={form.postal_code || ""}
+          onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
+          style={inputStyle}
+        />
 
-      <button onClick={previewMap} disabled={loadingMap}>
-        {loadingMap ? "Loading map..." : "Preview Map Location"}
-      </button>
+        <button
+          onClick={previewMap}
+          disabled={loadingMap}
+          style={{
+            padding: 12,
+            fontSize: 16,
+            fontWeight: "bold",
+            background: loadingMap ? "#4a5568" : "#3b82f6",
+            color: "white",
+            border: "none",
+            borderRadius: 6,
+            cursor: loadingMap ? "not-allowed" : "pointer",
+          }}
+        >
+          {loadingMap ? "Loading map..." : "Preview Map Location"}
+        </button>
 
-      {mapCoords && (
-        <div style={{ height: 300, marginTop: 8 }}>
-          <MapContainer
-            center={[mapCoords.lat, mapCoords.lng]}
-            zoom={15}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution="&copy; OpenStreetMap contributors"
+        {mapCoords && (
+          <div style={{ height: 300, marginTop: 8 }}>
+            <MapContainer
+              center={[mapCoords.lat, mapCoords.lng]}
+              zoom={15}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="&copy; OpenStreetMap contributors"
+              />
+              <Marker position={[mapCoords.lat, mapCoords.lng]}>
+                <Popup>Claim Location</Popup>
+              </Marker>
+            </MapContainer>
+          </div>
+        )}
+
+        <h4 style={{ color: "#e2e8f0", marginTop: 16 }}>
+          Appointment Schedule
+        </h4>
+        <div style={{ display: "grid", gap: 8 }}>
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 4,
+                fontWeight: "bold",
+                color: "#e2e8f0",
+              }}
+            >
+              Appointment Start (Date & Time)
+            </label>
+            <input
+              type="datetime-local"
+              value={form.appointment_start?.slice(0, 16) || ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  appointment_start: e.target.value
+                    ? new Date(e.target.value).toISOString()
+                    : undefined,
+                })
+              }
+              style={inputStyle}
             />
-            <Marker position={[mapCoords.lat, mapCoords.lng]}>
-              <Popup>Claim Location</Popup>
-            </Marker>
-          </MapContainer>
+          </div>
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 4,
+                fontWeight: "bold",
+                color: "#e2e8f0",
+              }}
+            >
+              Appointment End (Date & Time)
+            </label>
+            <input
+              type="datetime-local"
+              value={form.appointment_end?.slice(0, 16) || ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  appointment_end: e.target.value
+                    ? new Date(e.target.value).toISOString()
+                    : undefined,
+                })
+              }
+              style={inputStyle}
+            />
+          </div>
         </div>
-      )}
 
-      <h4>Appointment Schedule</h4>
-      <div style={{ display: "grid", gap: 8 }}>
-        <div>
-          <label
-            style={{ display: "block", marginBottom: 4, fontWeight: "bold" }}
-          >
-            Appointment Start (Date & Time)
-          </label>
-          <input
-            type="datetime-local"
-            value={form.appointment_start?.slice(0, 16) || ""}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                appointment_start: e.target.value
-                  ? new Date(e.target.value).toISOString()
-                  : undefined,
-              })
-            }
-            style={{ width: "100%", padding: 8 }}
-          />
-        </div>
-        <div>
-          <label
-            style={{ display: "block", marginBottom: 4, fontWeight: "bold" }}
-          >
-            Appointment End (Date & Time)
-          </label>
-          <input
-            type="datetime-local"
-            value={form.appointment_end?.slice(0, 16) || ""}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                appointment_end: e.target.value
-                  ? new Date(e.target.value).toISOString()
-                  : undefined,
-              })
-            }
-            style={{ width: "100%", padding: 8 }}
-          />
-        </div>
+        <h4 style={{ color: "#e2e8f0", marginTop: 16 }}>Assignment</h4>
+        <select
+          value={form.assigned_to || ""}
+          onChange={(e) =>
+            setForm({ ...form, assigned_to: e.target.value || null })
+          }
+          style={{
+            padding: 12,
+            fontSize: 16,
+            border: "1px solid #4a5568",
+            borderRadius: 6,
+            background: "#2d3748",
+            color: "#e2e8f0",
+          }}
+        >
+          <option value="">Unassigned</option>
+          {users?.map((u) => (
+            <option key={u.user_id} value={u.user_id}>
+              {u.full_name || u.user_id} ({u.role})
+            </option>
+          ))}
+        </select>
+
+        <button
+          onClick={() => save(false)}
+          style={{
+            marginTop: 16,
+            padding: 12,
+            fontSize: 16,
+            fontWeight: "bold",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white",
+            border: "none",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
+        >
+          Save Claim
+        </button>
       </div>
-
-      <h4>Assignment</h4>
-      <select
-        value={form.assigned_to || ""}
-        onChange={(e) =>
-          setForm({ ...form, assigned_to: e.target.value || null })
-        }
-      >
-        <option value="">Unassigned</option>
-        {users?.map((u) => (
-          <option key={u.user_id} value={u.user_id}>
-            {u.full_name || u.user_id} ({u.role})
-          </option>
-        ))}
-      </select>
-
-      <button
-        onClick={() => save(false)}
-        style={{ marginTop: 16, padding: 12, fontSize: 16, fontWeight: "bold" }}
-      >
-        Save Claim
-      </button>
     </div>
   );
 }

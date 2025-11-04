@@ -45,7 +45,7 @@ export default function App() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(135deg, #1a202c 0%, #2d3748 100%)",
         padding: 32,
       }}
     >
@@ -56,26 +56,29 @@ export default function App() {
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: 32,
-            background: "white",
+            background: "#2d3748",
+            border: "1px solid #4a5568",
             padding: 20,
             borderRadius: 12,
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+            boxShadow: "0 4px 6px rgba(0,0,0,0.5)",
           }}
         >
-          <h2 style={{ margin: 0, color: "#333" }}>
+          <h2 style={{ margin: 0, color: "#e2e8f0" }}>
             Welcome, {p.role === "admin" ? "Admin" : "Appraiser"}
           </h2>
           <button
             onClick={handleLogout}
             style={{
               padding: "10px 20px",
-              background: "#dc3545",
+              background: "#ef4444",
               color: "white",
               border: "none",
               borderRadius: 6,
               fontWeight: "bold",
               cursor: "pointer",
             }}
+            onMouseOver={(e) => (e.currentTarget.style.background = "#dc2626")}
+            onMouseOut={(e) => (e.currentTarget.style.background = "#ef4444")}
           >
             Logout
           </button>
@@ -86,12 +89,13 @@ export default function App() {
             <Link
               to="/admin/claims"
               style={{
-                background: "white",
+                background: "#2d3748",
+                border: "1px solid #4a5568",
                 padding: 24,
                 borderRadius: 12,
                 textDecoration: "none",
-                color: "#333",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                color: "#e2e8f0",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.5)",
                 transition: "transform 0.2s",
               }}
               onMouseOver={(e) =>
@@ -102,8 +106,10 @@ export default function App() {
               }
             >
               <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
-              <h3 style={{ margin: 0, marginBottom: 8 }}>View All Claims</h3>
-              <p style={{ margin: 0, color: "#666" }}>
+              <h3 style={{ margin: 0, marginBottom: 8, color: "#e2e8f0" }}>
+                View All Claims
+              </h3>
+              <p style={{ margin: 0, color: "#a0aec0" }}>
                 View and manage all active claims in the system
               </p>
             </Link>
@@ -111,12 +117,13 @@ export default function App() {
             <Link
               to="/admin/claims/new"
               style={{
-                background: "white",
+                background: "#2d3748",
+                border: "1px solid #4a5568",
                 padding: 24,
                 borderRadius: 12,
                 textDecoration: "none",
-                color: "#333",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                color: "#e2e8f0",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.5)",
                 transition: "transform 0.2s",
               }}
               onMouseOver={(e) =>
@@ -127,8 +134,10 @@ export default function App() {
               }
             >
               <div style={{ fontSize: 48, marginBottom: 12 }}>➕</div>
-              <h3 style={{ margin: 0, marginBottom: 8 }}>Create New Claim</h3>
-              <p style={{ margin: 0, color: "#666" }}>
+              <h3 style={{ margin: 0, marginBottom: 8, color: "#e2e8f0" }}>
+                Create New Claim
+              </h3>
+              <p style={{ margin: 0, color: "#a0aec0" }}>
                 Start a new insurance claim with customer and vehicle details
               </p>
             </Link>
@@ -136,12 +145,13 @@ export default function App() {
             <Link
               to="/admin/claims?archived=true"
               style={{
-                background: "white",
+                background: "#2d3748",
+                border: "1px solid #4a5568",
                 padding: 24,
                 borderRadius: 12,
                 textDecoration: "none",
-                color: "#333",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                color: "#e2e8f0",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.5)",
                 transition: "transform 0.2s",
               }}
               onMouseOver={(e) =>
@@ -152,8 +162,10 @@ export default function App() {
               }
             >
               <div style={{ fontSize: 48, marginBottom: 12 }}>📦</div>
-              <h3 style={{ margin: 0, marginBottom: 8 }}>Archived Claims</h3>
-              <p style={{ margin: 0, color: "#666" }}>
+              <h3 style={{ margin: 0, marginBottom: 8, color: "#e2e8f0" }}>
+                Archived Claims
+              </h3>
+              <p style={{ margin: 0, color: "#a0aec0" }}>
                 View completed and archived claims for record keeping
               </p>
             </Link>
@@ -163,12 +175,13 @@ export default function App() {
             <Link
               to="/my-claims"
               style={{
-                background: "white",
+                background: "#2d3748",
+                border: "1px solid #4a5568",
                 padding: 24,
                 borderRadius: 12,
                 textDecoration: "none",
-                color: "#333",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                color: "#e2e8f0",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.5)",
                 transition: "transform 0.2s",
               }}
               onMouseOver={(e) =>
@@ -179,8 +192,10 @@ export default function App() {
               }
             >
               <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
-              <h3 style={{ margin: 0, marginBottom: 8 }}>My Claims</h3>
-              <p style={{ margin: 0, color: "#666" }}>
+              <h3 style={{ margin: 0, marginBottom: 8, color: "#e2e8f0" }}>
+                My Claims
+              </h3>
+              <p style={{ margin: 0, color: "#a0aec0" }}>
                 View claims assigned to you and manage appraisals
               </p>
             </Link>

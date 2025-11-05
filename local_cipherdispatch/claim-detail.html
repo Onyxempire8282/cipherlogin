@@ -358,17 +358,23 @@
         try {
           const { data, error } = await supabaseClient
             .from("claims")
-            .select(
-              `
-            *,
-            appraiser:profiles!claims_assigned_to_fkey(id, email)
-          `
-            )
+            .select("*")
             .eq("id", claimId)
             .single();
 
           if (error) throw error;
           currentClaim = data;
+
+          // Load appraiser info if assigned
+          if (currentClaim.assigned_to) {
+            const { data: appraiserData } = await supabaseClient
+              .from("profiles")
+              .select("id, email")
+              .eq("id", currentClaim.assigned_to)
+              .single();
+            currentClaim.appraiser = appraiserData;
+          }
+
           renderClaim();
           await loadPhotos();
         } catch (error) {

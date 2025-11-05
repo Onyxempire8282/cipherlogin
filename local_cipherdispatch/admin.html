@@ -85,16 +85,24 @@
         try {
           const { data, error } = await supabaseClient
             .from("claims")
-            .select(
-              `
-            *,
-            appraiser:profiles!claims_assigned_to_fkey(email)
-          `
-            )
+            .select("*")
             .order("created_at", { ascending: false });
 
           if (error) throw error;
+
+          // Load appraiser info for each claim
           allClaims = data || [];
+          for (const claim of allClaims) {
+            if (claim.assigned_to) {
+              const { data: appraiserData } = await supabaseClient
+                .from("profiles")
+                .select("email")
+                .eq("id", claim.assigned_to)
+                .single();
+              claim.appraiser = appraiserData;
+            }
+          }
+
           renderClaims();
         } catch (error) {
           console.error("Error loading claims:", error);

@@ -11,16 +11,28 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>Claim Cipher Login</title>
-    <link rel="stylesheet" href="styles.css?v=3" />
+    <link rel="stylesheet" href="styles.css?v=4" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+      // Aggressive cache clearing for Chrome
+      const BUILD_TIME = "20251105"; // Update this when deploying
+
       // Force cache clear if old version is detected
       if (window.performance && performance.navigation.type !== 1) {
         const version = localStorage.getItem("app-version");
-        if (version !== "static-v3") {
-          localStorage.setItem("app-version", "static-v3");
+        const buildTime = localStorage.getItem("app-build-time");
+        if (version !== "static-v4" || buildTime !== BUILD_TIME) {
+          localStorage.setItem("app-version", "static-v4");
+          localStorage.setItem("app-build-time", BUILD_TIME);
           window.location.reload(true);
         }
+      }
+      
+      // Register service worker for aggressive cache control
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/CipherDispatch/sw.js')
+          .then(() => console.log('Service Worker registered'))
+          .catch((err) => console.log('SW registration failed', err));
       }
     </script>
   </head>
@@ -57,7 +69,7 @@
       </div>
     </div>
 
-    <script src="js/config.js?v=3"></script>
+    <script src="js/config.js?v=4"></script>
     <script>
       const loginForm = document.getElementById("login-form");
       const errorMsg = document.getElementById("error-msg");

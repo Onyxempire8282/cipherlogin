@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Claim Cipher - New Claim</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div
+      style="
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        padding: 16px;
+        box-sizing: border-box;
+      "
+    >
+      <div class="topbar">
+        <div class="left">
+          <a href="admin.html">← Back</a>
+          <h3>New Claim</h3>
+        </div>
+      </div>
+      <div class="container" style="align-items: flex-start">
+        <div class="card" style="max-width: 600px">
+          <div
+            id="error-msg"
+            style="
+              display: none;
+              color: #ef4444;
+              margin-bottom: 16px;
+              text-align: center;
+            "
+          ></div>
+          <div
+            id="success-msg"
+            style="
+              display: none;
+              color: #10b981;
+              margin-bottom: 16px;
+              text-align: center;
+            "
+          ></div>
+          <form id="claim-form">
+            <label>Claim Number</label>
+            <input
+              type="text"
+              id="claim_number"
+              placeholder="Enter claim number"
+              required
+            />
+
+            <label>Customer Name</label>
+            <input
+              type="text"
+              id="customer_name"
+              placeholder="Enter customer name"
+              required
+            />
+
+            <label>VIN</label>
+            <input type="text" id="vin" placeholder="Enter VIN" />
+
+            <label>Vehicle Year</label>
+            <input type="text" id="vehicle_year" placeholder="2024" />
+
+            <label>Vehicle Make</label>
+            <input type="text" id="vehicle_make" placeholder="Make" />
+
+            <label>Vehicle Model</label>
+            <input type="text" id="vehicle_model" placeholder="Model" />
+
+            <label>Address</label>
+            <input type="text" id="address" placeholder="Enter address" />
+
+            <label>City</label>
+            <input type="text" id="city" placeholder="City" />
+
+            <label>State</label>
+            <input type="text" id="state" placeholder="State" />
+
+            <label>ZIP Code</label>
+            <input type="text" id="zip" placeholder="ZIP" />
+
+            <label>Appointment Date &amp; Time</label>
+            <input type="datetime-local" id="appointment_start" />
+
+            <label>Notes</label>
+            <textarea
+              id="notes"
+              rows="4"
+              style="
+                width: 100%;
+                padding: 12px;
+                font-size: 16px;
+                border: 1px solid #4a5568;
+                border-radius: 6px;
+                background: #2d3748;
+                color: #e2e8f0;
+                margin-bottom: 16px;
+                box-sizing: border-box;
+                font-family: inherit;
+              "
+            ></textarea>
+
+            <button type="submit">Create Claim</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+      const claimForm = document.getElementById("claim-form");
+      const errorMsg = document.getElementById("error-msg");
+      const successMsg = document.getElementById("success-msg");
+
+      // Check authentication
+      supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          window.location.href = "index.html";
+        }
+      });
+
+      claimForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        errorMsg.style.display = "none";
+        successMsg.style.display = "none";
+
+        const formData = {
+          claim_number: document.getElementById("claim_number").value,
+          customer_name: document.getElementById("customer_name").value,
+          vin: document.getElementById("vin").value || null,
+          vehicle_year: document.getElementById("vehicle_year").value || null,
+          vehicle_make: document.getElementById("vehicle_make").value || null,
+          vehicle_model: document.getElementById("vehicle_model").value || null,
+          address: document.getElementById("address").value || null,
+          city: document.getElementById("city").value || null,
+          state: document.getElementById("state").value || null,
+          zip: document.getElementById("zip").value || null,
+          appointment_start:
+            document.getElementById("appointment_start").value || null,
+          notes: document.getElementById("notes").value || null,
+          status: "NONE",
+        };
+
+        try {
+          const { data, error } = await supabaseClient
+            .from("claims")
+            .insert([formData])
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          successMsg.textContent = "Claim created successfully!";
+          successMsg.style.display = "block";
+
+          setTimeout(() => {
+            window.location.href = "admin.html";
+          }, 1500);
+        } catch (error) {
+          console.error("Error creating claim:", error);
+          errorMsg.textContent = error.message;
+          errorMsg.style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>

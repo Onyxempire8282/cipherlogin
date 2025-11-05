@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Claim Cipher - Admin Claims</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div
+      style="
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        padding: 16px;
+        box-sizing: border-box;
+      "
+    >
+      <div class="topbar">
+        <div class="left">
+          <button
+            onclick="handleLogout()"
+            style="
+              padding: 8px 16px;
+              background: #ef4444;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-weight: bold;
+            "
+          >
+            Logout
+          </button>
+          <h3 id="view-title">Active Claims</h3>
+        </div>
+        <div class="right">
+          <button id="toggle-archived" class="toggle-archived">
+            📦 View Archived
+          </button>
+          <a href="new-claim.html">+ New Claim</a>
+        </div>
+      </div>
+      <div id="claims-grid" class="grid">
+        <div style="text-align: center; color: #a0aec0; padding: 40px">
+          Loading claims...
+        </div>
+      </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+      let showArchived = false;
+      let allClaims = [];
+
+      // Check authentication
+      supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          window.location.href = "index.html";
+          return;
+        }
+        loadClaims();
+      });
+
+      async function handleLogout() {
+        await supabaseClient.auth.signOut();
+        window.location.href = "index.html";
+      }
+
+      document
+        .getElementById("toggle-archived")
+        .addEventListener("click", () => {
+          showArchived = !showArchived;
+          document.getElementById("toggle-archived").textContent = showArchived
+            ? "📋 View Active"
+            : "📦 View Archived";
+          document.getElementById("view-title").textContent = showArchived
+            ? "Archived Claims"
+            : "Active Claims";
+          renderClaims();
+        });
+
+      async function loadClaims() {
+        try {
+          const { data, error } = await supabaseClient
+            .from("claims")
+            .select(
+              `
+            *,
+            appraiser:profiles!claims_assigned_to_fkey(email)
+          `
+            )
+            .order("created_at", { ascending: false });
+
+          if (error) throw error;
+          allClaims = data || [];
+          renderClaims();
+        } catch (error) {
+          console.error("Error loading claims:", error);
+          document.getElementById("claims-grid").innerHTML =
+            '<div style="text-align:center; color:#ef4444; padding:40px;">Error loading claims</div>';
+        }
+      }
+
+      function renderClaims() {
+        const filteredClaims = allClaims.filter((claim) =>
+          showArchived
+            ? claim.status === "COMPLETED"
+            : claim.status !== "COMPLETED"
+        );
+
+        if (filteredClaims.length === 0) {
+          document.getElementById("claims-grid").innerHTML =
+            '<div style="text-align:center; color:#a0aec0; padding:40px;">No claims found</div>';
+          return;
+        }
+
+        document.getElementById("claims-grid").innerHTML = filteredClaims
+          .map(
+            (claim) => `
+        <a class="claim-card" href="claim-detail.html?id=${claim.id}">
+          <span class="status ${getStatusClass(claim.status)}">${
+              claim.status
+            }</span>
+          <h4>#${claim.claim_number}</h4>
+          <section>
+            <div class="title">Customer</div>
+            <div class="content">${claim.customer_name}</div>
+          </section>
+          <section>
+            <div class="title">📅 Appointment</div>
+            <div class="content">${formatAppointment(claim)}</div>
+          </section>
+          <section>
+            <div class="title">🚗 Vehicle Info</div>
+            <div class="content">${claim.vehicle_year || ""} ${
+              claim.vehicle_make || ""
+            } ${claim.vehicle_model || ""}</div>
+          </section>
+          <section>
+            <div class="content"><strong>👤 Assigned:</strong> ${
+              claim.appraiser?.email || "Unassigned"
+            }</div>
+          </section>
+        </a>
+      `
+          )
+          .join("");
+      }
+
+      function getStatusClass(status) {
+        const map = {
+          COMPLETED: "completed",
+          IN_PROGRESS: "in-progress",
+          SCHEDULED: "scheduled",
+          NONE: "none",
+        };
+        return map[status] || "none";
+      }
+
+      function formatAppointment(claim) {
+        if (!claim.appointment_start) return "No appointment scheduled";
+        const date = new Date(claim.appointment_start);
+        return `Start: ${date.toLocaleString("en-US", {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        })}`;
+      }
+    </script>
+  </body>
+</html>

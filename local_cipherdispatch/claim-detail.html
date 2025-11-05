@@ -245,9 +245,11 @@
       <div class="nav-left">
         <span class="nav-brand">⚡ Claim Cipher</span>
         <a href="admin.html" id="nav-claims">📋 Claims</a>
-        <a href="my-claims.html" id="nav-my-claims" style="display: none"
-          >📋 My Claims</a
-        >
+        <a href="my-claims.html" id="nav-my-claims" style="display: none">📋 My Claims</a>
+        <a href="notifications.html" id="nav-notifications" style="display:none; position:relative;">
+          � Notifications
+          <span id="notification-badge" style="display:none; position:absolute; top:-4px; right:-8px; background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:11px; font-weight:bold; display:flex; align-items:center; justify-content:center;"></span>
+        </a>
         <a href="new-claim.html" id="nav-new-claim">➕ New Claim</a>
       </div>
       <div class="nav-right">
@@ -361,11 +363,14 @@
         if (isAdmin) {
           document.getElementById("nav-claims").style.display = "block";
           document.getElementById("nav-my-claims").style.display = "none";
+          document.getElementById("nav-notifications").style.display = "none";
           document.getElementById("nav-new-claim").style.display = "block";
         } else {
           document.getElementById("nav-claims").style.display = "none";
           document.getElementById("nav-my-claims").style.display = "block";
+          document.getElementById("nav-notifications").style.display = "block";
           document.getElementById("nav-new-claim").style.display = "none";
+          checkNotifications();
         }
 
         if (isAdmin) {
@@ -383,6 +388,32 @@
 
           allAppraisers = data || [];
         }
+
+      async function checkNotifications() {
+        try {
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+          const { data: claims, error } = await supabaseClient
+            .from("claims")
+            .select("id")
+            .eq("assigned_to", currentUser.id)
+            .gte("created_at", sevenDaysAgo.toISOString());
+
+          if (error) throw error;
+
+          const readNotifications = JSON.parse(localStorage.getItem("readNotifications") || "[]");
+          const unreadCount = (claims || []).filter(c => !readNotifications.includes(c.id)).length;
+
+          if (unreadCount > 0) {
+            const badge = document.getElementById("notification-badge");
+            badge.textContent = unreadCount > 9 ? "9+" : unreadCount;
+            badge.style.display = "flex";
+          }
+        } catch (error) {
+          console.error("Error checking notifications:", error);
+        }
+      }
 
         if (claimId) {
           await loadClaim();

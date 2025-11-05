@@ -14,6 +14,10 @@
       <div class="nav-left">
         <span class="nav-brand">⚡ Claim Cipher</span>
         <a href="my-claims.html" class="active">📋 My Claims</a>
+        <a href="notifications.html" style="position:relative;">
+          🔔 Notifications
+          <span id="notification-badge" style="display:none; position:absolute; top:-4px; right:-8px; background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:11px; font-weight:bold; display:flex; align-items:center; justify-content:center;"></span>
+        </a>
       </div>
       <div class="nav-right">
         <button class="nav-logout" onclick="handleLogout()">Logout</button>
@@ -64,11 +68,38 @@
         }
         currentUserId = session.user.id;
         loadMyClaims();
+        checkNotifications();
       });
 
       async function handleLogout() {
         await supabaseClient.auth.signOut();
         window.location.href = "index.html";
+      }
+
+      async function checkNotifications() {
+        try {
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+          const { data: claims, error } = await supabaseClient
+            .from("claims")
+            .select("id")
+            .eq("assigned_to", currentUserId)
+            .gte("created_at", sevenDaysAgo.toISOString());
+
+          if (error) throw error;
+
+          const readNotifications = JSON.parse(localStorage.getItem("readNotifications") || "[]");
+          const unreadCount = (claims || []).filter(c => !readNotifications.includes(c.id)).length;
+
+          if (unreadCount > 0) {
+            const badge = document.getElementById("notification-badge");
+            badge.textContent = unreadCount > 9 ? "9+" : unreadCount;
+            badge.style.display = "flex";
+          }
+        } catch (error) {
+          console.error("Error checking notifications:", error);
+        }
       }
 
       async function loadMyClaims() {
@@ -130,7 +161,9 @@
           html += `
             <div style="margin-bottom:32px;">
               <h3 style="color:#e2e8f0; margin:16px 0; padding:12px; background:rgba(102, 126, 234, 0.2); border-left:4px solid #667eea; border-radius:4px;">
-                📅 ${dateKey} <span style="color:#a0aec0; font-size:16px; font-weight:normal;">(${dateClaims.length} claim${dateClaims.length !== 1 ? 's' : ''})</span>
+                📅 ${dateKey} <span style="color:#a0aec0; font-size:16px; font-weight:normal;">(${
+            dateClaims.length
+          } claim${dateClaims.length !== 1 ? "s" : ""})</span>
               </h3>
               <div class="grid">
                 ${dateClaims

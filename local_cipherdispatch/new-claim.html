@@ -60,6 +60,12 @@
               required
             />
 
+            <label>Phone</label>
+            <input type="tel" id="phone" placeholder="Enter phone number" />
+
+            <label>Email</label>
+            <input type="email" id="email" placeholder="Enter email" />
+
             <label>VIN</label>
             <input type="text" id="vin" placeholder="Enter VIN" />
 
@@ -72,8 +78,11 @@
             <label>Vehicle Model</label>
             <input type="text" id="vehicle_model" placeholder="Model" />
 
-            <label>Address</label>
-            <input type="text" id="address" placeholder="Enter address" />
+            <label>Address Line 1</label>
+            <input type="text" id="address_line1" placeholder="Enter address" />
+
+            <label>Address Line 2 (optional)</label>
+            <input type="text" id="address_line2" placeholder="Apt, Suite, etc." />
 
             <label>City</label>
             <input type="text" id="city" placeholder="City" />
@@ -81,10 +90,8 @@
             <label>State</label>
             <input type="text" id="state" placeholder="State" />
 
-            <label>ZIP Code</label>
-            <input type="text" id="zip" placeholder="ZIP" />
-
-            <label>Appointment Date &amp; Time</label>
+            <label>Postal Code</label>
+            <input type="text" id="postal_code" placeholder="Postal code" />            <label>Appointment Date &amp; Time</label>
             <input type="datetime-local" id="appointment_start" />
 
             <label>Notes</label>
@@ -132,14 +139,17 @@
         const formData = {
           claim_number: document.getElementById("claim_number").value,
           customer_name: document.getElementById("customer_name").value,
+          phone: document.getElementById("phone").value || null,
+          email: document.getElementById("email").value || null,
           vin: document.getElementById("vin").value || null,
           vehicle_year: document.getElementById("vehicle_year").value || null,
           vehicle_make: document.getElementById("vehicle_make").value || null,
           vehicle_model: document.getElementById("vehicle_model").value || null,
-          address: document.getElementById("address").value || null,
+          address_line1: document.getElementById("address_line1").value || null,
+          address_line2: document.getElementById("address_line2").value || null,
           city: document.getElementById("city").value || null,
           state: document.getElementById("state").value || null,
-          zip: document.getElementById("zip").value || null,
+          postal_code: document.getElementById("postal_code").value || null,
           appointment_start:
             document.getElementById("appointment_start").value || null,
           notes: document.getElementById("notes").value || null,

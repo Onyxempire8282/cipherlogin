@@ -410,10 +410,11 @@
         }
 
         const fullAddress = [
-          currentClaim.address,
+          currentClaim.address_line1,
+          currentClaim.address_line2,
           currentClaim.city,
           currentClaim.state,
-          currentClaim.zip,
+          currentClaim.postal_code,
         ]
           .filter(Boolean)
           .join(", ");

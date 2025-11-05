@@ -96,7 +96,7 @@
             if (claim.assigned_to) {
               const { data: appraiserData } = await supabaseClient
                 .from("profiles")
-                .select("email")
+                .select("full_name")
                 .eq("user_id", claim.assigned_to)
                 .single();
               claim.appraiser = appraiserData;
@@ -148,7 +148,7 @@
           </section>
           <section>
             <div class="content"><strong>👤 Assigned:</strong> ${
-              claim.appraiser?.email || "Unassigned"
+              claim.appraiser?.full_name || "Unassigned"
             }</div>
           </section>
         </a>

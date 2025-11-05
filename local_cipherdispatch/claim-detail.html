@@ -262,6 +262,14 @@
               Loading...
             </h3>
             <div style="display: flex; gap: 8px; flex-wrap: wrap">
+              <button
+                class="btn btn-primary"
+                onclick="saveAndExit()"
+                style="display: none"
+                id="save-exit-btn"
+              >
+                💾 Save & Exit
+              </button>
               <button class="btn btn-secondary" onclick="history.back()">
                 ← Back
               </button>
@@ -338,12 +346,18 @@
         isAdmin = profile?.role === "admin";
 
         if (isAdmin) {
-          const { data } = await supabaseClient
+          const { data, error } = await supabaseClient
             .from("profiles")
-            .select("user_id, email, role")
+            .select("user_id, full_name, role")
             .eq("role", "appraiser")
-            .order("email");
-          allAppraisers = data || [];
+            .order("full_name");
+
+          if (error) {
+            console.error("Error loading appraisers:", error);
+          } else {
+            console.log("Loaded appraisers:", data);
+          }
+
           allAppraisers = data || [];
         }
 
@@ -389,6 +403,11 @@
         document.getElementById(
           "claim-title"
         ).textContent = `Claim #${currentClaim.claim_number}`;
+
+        // Show Save & Exit button for admins
+        if (isAdmin) {
+          document.getElementById("save-exit-btn").style.display = "block";
+        }
 
         const fullAddress = [
           currentClaim.address,
@@ -535,7 +554,7 @@
                 <option value="${a.user_id}" ${
                     currentClaim.assigned_to === a.user_id ? "selected" : ""
                   }>
-                  ${a.email}
+                  ${a.full_name}
                 </option>
               `
                 )
@@ -872,6 +891,13 @@
         link.href = data.publicUrl;
         link.download = photo.name;
         link.click();
+      }
+
+      async function saveAndExit() {
+        // All changes are auto-saved as they happen
+        // This button just provides a clear exit point
+        alert("All changes have been saved!");
+        window.location.href = "admin.html";
       }
 
       document.addEventListener("keydown", (e) => {

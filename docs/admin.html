@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Claim Cipher - Admin Claims</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+      <div class="nav-left">
+        <span class="nav-brand">⚡ Claim Cipher</span>
+        <a href="admin.html" class="active">📋 Claims</a>
+        <a href="new-claim.html">➕ New Claim</a>
+      </div>
+      <div class="nav-right">
+        <button class="nav-logout" onclick="handleLogout()">Logout</button>
+      </div>
+    </nav>
+
+    <div
+      style="
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        padding: 16px;
+        box-sizing: border-box;
+      "
+    >
+      <div class="topbar">
+        <div class="left">
+          <h3 id="view-title">Active Claims</h3>
+        </div>
+        <div class="right">
+          <button id="toggle-archived" class="toggle-archived">
+            📦 View Archived
+          </button>
+          <button
+            id="download-csv"
+            class="toggle-archived"
+            style="display: none; background: #10b981"
+          >
+            📥 Download CSV
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="status-summary"
+        style="
+          display: flex;
+          gap: 16px;
+          margin: 16px 0;
+          justify-content: center;
+          flex-wrap: wrap;
+        "
+      ></div>
+
+      <div id="claims-container">
+        <div style="text-align: center; color: #a0aec0; padding: 40px">
+          Loading claims...
+        </div>
+      </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+      let showArchived = false;
+      let allClaims = [];
+
+      // Check authentication
+      supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          window.location.href = "index.html";
+          return;
+        }
+        loadClaims();
+      });
+
+      async function handleLogout() {
+        await supabaseClient.auth.signOut();
+        window.location.href = "index.html";
+      }
+
+      document
+        .getElementById("toggle-archived")
+        .addEventListener("click", () => {
+          showArchived = !showArchived;
+          document.getElementById("toggle-archived").textContent = showArchived
+            ? "📋 View Active"
+            : "📦 View Archived";
+          document.getElementById("view-title").textContent = showArchived
+            ? "Archived Claims"
+            : "Active Claims";
+          document.getElementById("download-csv").style.display = showArchived
+            ? "block"
+            : "none";
+          renderClaims();
+        });
+
+      document.getElementById("download-csv").addEventListener("click", () => {
+        downloadCSV();
+      });
+
+      async function loadClaims() {
+        try {
+          const { data, error } = await supabaseClient
+            .from("claims")
+            .select("*")
+            .order("appointment_start", { ascending: true });
+
+          if (error) throw error;
+
+          // Load appraiser info for each claim
+          allClaims = data || [];
+          for (const claim of allClaims) {
+            if (claim.assigned_to) {
+              const { data: appraiserData } = await supabaseClient
+                .from("profiles")
+                .select("full_name")
+                .eq("user_id", claim.assigned_to)
+                .single();
+              claim.appraiser = appraiserData;
+            }
+          }
+
+          renderClaims();
+        } catch (error) {
+          console.error("Error loading claims:", error);
+          document.getElementById("claims-container").innerHTML =
+            '<div style="text-align:center; color:#ef4444; padding:40px;">Error loading claims</div>';
+        }
+      }
+
+      function renderClaims() {
+        // Calculate status counts
+        const scheduledCount = allClaims.filter(
+          (c) => c.status === "SCHEDULED"
+        ).length;
+        const inProgressCount = allClaims.filter(
+          (c) => c.status === "IN_PROGRESS"
+        ).length;
+        const completedCount = allClaims.filter(
+          (c) => c.status === "COMPLETED"
+        ).length;
+
+        // Update status summary
+        document.getElementById("status-summary").innerHTML = `
+          <div style="background:#2d3748; padding:16px 24px; border-radius:8px; border:2px solid #3b82f6;">
+            <div style="font-size:24px; font-weight:bold; color:#3b82f6;">${scheduledCount}</div>
+            <div style="color:#e2e8f0; font-size:14px;">📅 Scheduled</div>
+          </div>
+          <div style="background:#2d3748; padding:16px 24px; border-radius:8px; border:2px solid #f59e0b;">
+            <div style="font-size:24px; font-weight:bold; color:#f59e0b;">${inProgressCount}</div>
+            <div style="color:#e2e8f0; font-size:14px;">⚙️ In Progress</div>
+          </div>
+          <div style="background:#2d3748; padding:16px 24px; border-radius:8px; border:2px solid #10b981;">
+            <div style="font-size:24px; font-weight:bold; color:#10b981;">${completedCount}</div>
+            <div style="color:#e2e8f0; font-size:14px;">✅ Completed</div>
+          </div>
+        `;
+
+        const filteredClaims = allClaims.filter((claim) =>
+          showArchived
+            ? claim.status === "COMPLETED"
+            : claim.status !== "COMPLETED"
+        );
+
+        if (filteredClaims.length === 0) {
+          document.getElementById("claims-container").innerHTML =
+            '<div style="text-align:center; color:#a0aec0; padding:40px;">No claims found</div>';
+          return;
+        }
+
+        // Group claims by date
+        const groupedClaims = groupClaimsByDate(filteredClaims);
+
+        let html = "";
+        for (const [dateKey, dateClaims] of Object.entries(groupedClaims)) {
+          html += `
+            <div style="margin-bottom:32px;">
+              <h3 style="color:#e2e8f0; margin:16px 0; padding:12px; background:rgba(102, 126, 234, 0.2); border-left:4px solid #667eea; border-radius:4px;">
+                📅 ${dateKey} <span style="color:#a0aec0; font-size:16px; font-weight:normal;">(${
+            dateClaims.length
+          } claim${dateClaims.length !== 1 ? "s" : ""})</span>
+              </h3>
+              <div class="grid">
+                ${dateClaims
+                  .map(
+                    (claim) => `
+                  <a class="claim-card" href="claim-detail.html?id=${claim.id}">
+                    <span class="status ${getStatusClass(claim.status)}">${
+                      claim.status
+                    }</span>
+                    <h4>#${claim.claim_number}</h4>
+                    <section>
+                      <div class="title">Customer</div>
+                      <div class="content">${claim.customer_name}</div>
+                    </section>
+                    <section>
+                      <div class="title">📅 Appointment</div>
+                      <div class="content">${formatAppointment(claim)}</div>
+                    </section>
+                    <section>
+                      <div class="title">🚗 Vehicle Info</div>
+                      <div class="content">${claim.vehicle_year || ""} ${
+                      claim.vehicle_make || ""
+                    } ${claim.vehicle_model || ""}</div>
+                    </section>
+                    <section>
+                      <div class="content"><strong>👤 Assigned:</strong> ${
+                        claim.appraiser?.full_name || "Unassigned"
+                      }</div>
+                    </section>
+                  </a>
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+          `;
+        }
+
+        document.getElementById("claims-container").innerHTML = html;
+      }
+
+      function groupClaimsByDate(claims) {
+        const groups = {};
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const nextWeek = new Date(today);
+        nextWeek.setDate(nextWeek.getDate() + 7);
+
+        claims.forEach((claim) => {
+          let dateKey;
+
+          if (!claim.appointment_start) {
+            dateKey = "No Appointment Set";
+          } else {
+            const aptDate = new Date(claim.appointment_start);
+            aptDate.setHours(0, 0, 0, 0);
+
+            if (claim.status === "COMPLETED") {
+              dateKey = "Completed";
+            } else if (aptDate.getTime() === today.getTime()) {
+              dateKey = "Today";
+            } else if (aptDate.getTime() === tomorrow.getTime()) {
+              dateKey = "Tomorrow";
+            } else if (aptDate < today) {
+              dateKey = "Overdue";
+            } else if (aptDate < nextWeek) {
+              dateKey = "This Week";
+            } else {
+              dateKey = aptDate.toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+            }
+          }
+
+          if (!groups[dateKey]) {
+            groups[dateKey] = [];
+          }
+          groups[dateKey].push(claim);
+        });
+
+        // Sort groups by priority
+        const sortOrder = ["Overdue", "Today", "Tomorrow", "This Week"];
+        const sortedGroups = {};
+
+        sortOrder.forEach((key) => {
+          if (groups[key]) sortedGroups[key] = groups[key];
+        });
+
+        // Add other dated groups
+        Object.keys(groups)
+          .sort()
+          .forEach((key) => {
+            if (
+              !sortOrder.includes(key) &&
+              key !== "No Appointment Set" &&
+              key !== "Completed"
+            ) {
+              sortedGroups[key] = groups[key];
+            }
+          });
+
+        // Add No Appointment and Completed at the end
+        if (groups["No Appointment Set"])
+          sortedGroups["No Appointment Set"] = groups["No Appointment Set"];
+        if (groups["Completed"])
+          sortedGroups["Completed"] = groups["Completed"];
+
+        return sortedGroups;
+      }
+
+      function getStatusClass(status) {
+        const map = {
+          COMPLETED: "completed",
+          IN_PROGRESS: "in-progress",
+          SCHEDULED: "scheduled",
+          NONE: "none",
+        };
+        return map[status] || "none";
+      }
+
+      function formatAppointment(claim) {
+        if (!claim.appointment_start) return "No appointment scheduled";
+
+        // Parse the ISO string and display the exact time stored
+        const date = new Date(claim.appointment_start);
+
+        // Format date and time without timezone conversion
+        const options = {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        };
+
+        return `Start: ${date.toLocaleString("en-US", options)}`;
+      }
+
+      function downloadCSV() {
+        const completedClaims = allClaims.filter(
+          (c) => c.status === "COMPLETED"
+        );
+
+        if (completedClaims.length === 0) {
+          alert("No completed claims to download");
+          return;
+        }
+
+        // CSV headers
+        const headers = [
+          "Claim Number",
+          "Customer Name",
+          "Phone",
+          "Email",
+          "VIN",
+          "Vehicle Year",
+          "Vehicle Make",
+          "Vehicle Model",
+          "Address Line 1",
+          "Address Line 2",
+          "City",
+          "State",
+          "Postal Code",
+          "Status",
+          "Assigned To",
+          "Appointment Start",
+          "Appointment End",
+          "Notes",
+          "Created At",
+        ];
+
+        // Convert claims to CSV rows
+        const rows = completedClaims.map((claim) =>
+          [
+            claim.claim_number || "",
+            claim.customer_name || "",
+            claim.phone || "",
+            claim.email || "",
+            claim.vin || "",
+            claim.vehicle_year || "",
+            claim.vehicle_make || "",
+            claim.vehicle_model || "",
+            claim.address_line1 || "",
+            claim.address_line2 || "",
+            claim.city || "",
+            claim.state || "",
+            claim.postal_code || "",
+            claim.status || "",
+            claim.appraiser?.full_name || "Unassigned",
+            claim.appointment_start || "",
+            claim.appointment_end || "",
+            claim.notes || "",
+            claim.created_at || "",
+          ]
+            .map((field) => `"${String(field).replace(/"/g, '""')}"`)
+            .join(",")
+        );
+
+        // Combine headers and rows
+        const csv = [headers.join(","), ...rows].join("\n");
+
+        // Create download link
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute(
+          "download",
+          `completed_claims_${new Date().toISOString().split("T")[0]}.csv`
+        );
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    </script>
+  </body>
+</html>

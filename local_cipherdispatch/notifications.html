@@ -107,13 +107,17 @@
         box-sizing: border-box;
       "
     >
-      <div style="max-width: 800px; margin: 0 auto;">
+      <div style="max-width: 800px; margin: 0 auto">
         <div class="topbar">
           <div class="left">
             <h3>Notifications</h3>
           </div>
           <div class="right">
-            <button id="mark-all-read" class="mark-all-read" style="display:none;">
+            <button
+              id="mark-all-read"
+              class="mark-all-read"
+              style="display: none"
+            >
               ✓ Mark All as Read
             </button>
           </div>
@@ -134,7 +138,9 @@
 
       // Check authentication
       (async () => {
-        const { data: { session } } = await supabaseClient.auth.getSession();
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
         if (!session) {
           window.location.href = "index.html";
           return;
@@ -164,16 +170,18 @@
           if (error) throw error;
 
           // Check localStorage for read notifications
-          const readNotifications = JSON.parse(localStorage.getItem("readNotifications") || "[]");
+          const readNotifications = JSON.parse(
+            localStorage.getItem("readNotifications") || "[]"
+          );
 
-          notifications = (claims || []).map(claim => ({
+          notifications = (claims || []).map((claim) => ({
             id: claim.id,
             claim_number: claim.claim_number,
             customer_name: claim.customer_name,
             status: claim.status,
             appointment_start: claim.appointment_start,
             created_at: claim.created_at,
-            isRead: readNotifications.includes(claim.id)
+            isRead: readNotifications.includes(claim.id),
           }));
 
           renderNotifications();
@@ -185,7 +193,7 @@
       }
 
       function renderNotifications() {
-        const unreadCount = notifications.filter(n => !n.isRead).length;
+        const unreadCount = notifications.filter((n) => !n.isRead).length;
 
         if (unreadCount > 0) {
           document.getElementById("mark-all-read").style.display = "block";
@@ -202,28 +210,32 @@
           return;
         }
 
-        let html = '';
-        
+        let html = "";
+
         if (unreadCount > 0) {
           html += `
             <div style="background:rgba(102, 126, 234, 0.2); padding:12px 16px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
               <span class="notification-badge">${unreadCount}</span>
-              <span style="color:#e2e8f0; font-weight:bold;">You have ${unreadCount} new claim${unreadCount !== 1 ? 's' : ''} assigned to you</span>
+              <span style="color:#e2e8f0; font-weight:bold;">You have ${unreadCount} new claim${
+            unreadCount !== 1 ? "s" : ""
+          } assigned to you</span>
             </div>
           `;
         }
 
-        notifications.forEach(notification => {
+        notifications.forEach((notification) => {
           const timeAgo = getTimeAgo(notification.created_at);
-          const appointmentText = notification.appointment_start 
+          const appointmentText = notification.appointment_start
             ? formatAppointmentShort(notification.appointment_start)
             : "No appointment set";
 
           html += `
             <a href="claim-detail.html?id=${notification.id}" 
-               class="notification-card ${!notification.isRead ? 'unread' : ''}"
+               class="notification-card ${!notification.isRead ? "unread" : ""}"
                onclick="markAsRead('${notification.id}')">
-              <div class="notification-icon">${!notification.isRead ? '🆕' : '✅'}</div>
+              <div class="notification-icon">${
+                !notification.isRead ? "🆕" : "✅"
+              }</div>
               <div class="notification-content">
                 <div class="notification-title">
                   New Claim Assigned: #${notification.claim_number}
@@ -233,7 +245,11 @@
                 </div>
                 <div class="notification-time">${timeAgo}</div>
               </div>
-              ${!notification.isRead ? '<div class="notification-badge">!</div>' : ''}
+              ${
+                !notification.isRead
+                  ? '<div class="notification-badge">!</div>'
+                  : ""
+              }
             </a>
           `;
         });
@@ -242,17 +258,22 @@
       }
 
       function markAsRead(claimId) {
-        const readNotifications = JSON.parse(localStorage.getItem("readNotifications") || "[]");
+        const readNotifications = JSON.parse(
+          localStorage.getItem("readNotifications") || "[]"
+        );
         if (!readNotifications.includes(claimId)) {
           readNotifications.push(claimId);
-          localStorage.setItem("readNotifications", JSON.stringify(readNotifications));
+          localStorage.setItem(
+            "readNotifications",
+            JSON.stringify(readNotifications)
+          );
         }
       }
 
       document.getElementById("mark-all-read").addEventListener("click", () => {
-        const allIds = notifications.map(n => n.id);
+        const allIds = notifications.map((n) => n.id);
         localStorage.setItem("readNotifications", JSON.stringify(allIds));
-        notifications.forEach(n => n.isRead = true);
+        notifications.forEach((n) => (n.isRead = true));
         renderNotifications();
       });
 
@@ -263,12 +284,17 @@
 
         if (seconds < 60) return "Just now";
         const minutes = Math.floor(seconds / 60);
-        if (minutes < 60) return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+        if (minutes < 60)
+          return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
         const hours = Math.floor(minutes / 60);
-        if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+        if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
         const days = Math.floor(hours / 24);
-        if (days < 7) return `${days} day${days !== 1 ? 's' : ''} ago`;
-        return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        if (days < 7) return `${days} day${days !== 1 ? "s" : ""} ago`;
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
       }
 
       function formatAppointmentShort(dateString) {
@@ -278,7 +304,7 @@
           month: "short",
           day: "numeric",
           hour: "numeric",
-          minute: "2-digit"
+          minute: "2-digit",
         });
       }
     </script>

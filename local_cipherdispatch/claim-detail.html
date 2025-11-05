@@ -245,10 +245,34 @@
       <div class="nav-left">
         <span class="nav-brand">⚡ Claim Cipher</span>
         <a href="admin.html" id="nav-claims">📋 Claims</a>
-        <a href="my-claims.html" id="nav-my-claims" style="display: none">📋 My Claims</a>
-        <a href="notifications.html" id="nav-notifications" style="display:none; position:relative;">
+        <a href="my-claims.html" id="nav-my-claims" style="display: none"
+          >📋 My Claims</a
+        >
+        <a
+          href="notifications.html"
+          id="nav-notifications"
+          style="display: none; position: relative"
+        >
           � Notifications
-          <span id="notification-badge" style="display:none; position:absolute; top:-4px; right:-8px; background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:11px; font-weight:bold; display:flex; align-items:center; justify-content:center;"></span>
+          <span
+            id="notification-badge"
+            style="
+              display: none;
+              position: absolute;
+              top: -4px;
+              right: -8px;
+              background: #ef4444;
+              color: white;
+              border-radius: 50%;
+              width: 18px;
+              height: 18px;
+              font-size: 11px;
+              font-weight: bold;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          ></span>
         </a>
         <a href="new-claim.html" id="nav-new-claim">➕ New Claim</a>
       </div>
@@ -389,31 +413,35 @@
           allAppraisers = data || [];
         }
 
-      async function checkNotifications() {
-        try {
-          const sevenDaysAgo = new Date();
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        async function checkNotifications() {
+          try {
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-          const { data: claims, error } = await supabaseClient
-            .from("claims")
-            .select("id")
-            .eq("assigned_to", currentUser.id)
-            .gte("created_at", sevenDaysAgo.toISOString());
+            const { data: claims, error } = await supabaseClient
+              .from("claims")
+              .select("id")
+              .eq("assigned_to", currentUser.id)
+              .gte("created_at", sevenDaysAgo.toISOString());
 
-          if (error) throw error;
+            if (error) throw error;
 
-          const readNotifications = JSON.parse(localStorage.getItem("readNotifications") || "[]");
-          const unreadCount = (claims || []).filter(c => !readNotifications.includes(c.id)).length;
+            const readNotifications = JSON.parse(
+              localStorage.getItem("readNotifications") || "[]"
+            );
+            const unreadCount = (claims || []).filter(
+              (c) => !readNotifications.includes(c.id)
+            ).length;
 
-          if (unreadCount > 0) {
-            const badge = document.getElementById("notification-badge");
-            badge.textContent = unreadCount > 9 ? "9+" : unreadCount;
-            badge.style.display = "flex";
+            if (unreadCount > 0) {
+              const badge = document.getElementById("notification-badge");
+              badge.textContent = unreadCount > 9 ? "9+" : unreadCount;
+              badge.style.display = "flex";
+            }
+          } catch (error) {
+            console.error("Error checking notifications:", error);
           }
-        } catch (error) {
-          console.error("Error checking notifications:", error);
         }
-      }
 
         if (claimId) {
           await loadClaim();
@@ -422,6 +450,18 @@
             '<div class="detail-card"><div style="text-align:center; color:#ef4444;">Invalid claim ID</div></div>';
         }
       })();
+
+      function formatDateTimeLocal(isoString) {
+        if (!isoString) return "";
+        const date = new Date(isoString);
+        // Format for datetime-local input: YYYY-MM-DDTHH:MM
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
 
       async function loadClaim() {
         try {
@@ -624,9 +664,7 @@
             <input type="datetime-local" id="apt-start" 
               value="${
                 currentClaim.appointment_start
-                  ? new Date(currentClaim.appointment_start)
-                      .toISOString()
-                      .slice(0, 16)
+                  ? formatDateTimeLocal(currentClaim.appointment_start)
                   : ""
               }"
               onchange="updateAppointment('start', this.value)">
@@ -639,9 +677,7 @@
             <input type="datetime-local" id="apt-end"
               value="${
                 currentClaim.appointment_end
-                  ? new Date(currentClaim.appointment_end)
-                      .toISOString()
-                      .slice(0, 16)
+                  ? formatDateTimeLocal(currentClaim.appointment_end)
                   : ""
               }"
               onchange="updateAppointment('end', this.value)">
@@ -752,13 +788,18 @@
         try {
           const field =
             type === "start" ? "appointment_start" : "appointment_end";
+
+          // Convert datetime-local value to ISO string maintaining the time
+          const dateValue = new Date(value).toISOString();
+
           const { error } = await supabaseClient
             .from("claims")
-            .update({ [field]: new Date(value).toISOString() })
+            .update({ [field]: dateValue })
             .eq("id", claimId);
 
           if (error) throw error;
           alert(`Appointment ${type} updated successfully`);
+          await loadClaim(); // Reload to show updated time
         } catch (error) {
           alert("Error updating appointment: " + error.message);
         }

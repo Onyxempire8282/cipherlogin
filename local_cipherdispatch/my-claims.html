@@ -14,9 +14,27 @@
       <div class="nav-left">
         <span class="nav-brand">⚡ Claim Cipher</span>
         <a href="my-claims.html" class="active">📋 My Claims</a>
-        <a href="notifications.html" style="position:relative;">
+        <a href="notifications.html" style="position: relative">
           🔔 Notifications
-          <span id="notification-badge" style="display:none; position:absolute; top:-4px; right:-8px; background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:11px; font-weight:bold; display:flex; align-items:center; justify-content:center;"></span>
+          <span
+            id="notification-badge"
+            style="
+              display: none;
+              position: absolute;
+              top: -4px;
+              right: -8px;
+              background: #ef4444;
+              color: white;
+              border-radius: 50%;
+              width: 18px;
+              height: 18px;
+              font-size: 11px;
+              font-weight: bold;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          ></span>
         </a>
       </div>
       <div class="nav-right">
@@ -89,8 +107,12 @@
 
           if (error) throw error;
 
-          const readNotifications = JSON.parse(localStorage.getItem("readNotifications") || "[]");
-          const unreadCount = (claims || []).filter(c => !readNotifications.includes(c.id)).length;
+          const readNotifications = JSON.parse(
+            localStorage.getItem("readNotifications") || "[]"
+          );
+          const unreadCount = (claims || []).filter(
+            (c) => !readNotifications.includes(c.id)
+          ).length;
 
           if (unreadCount > 0) {
             const badge = document.getElementById("notification-badge");
@@ -288,15 +310,22 @@
 
       function formatAppointment(claim) {
         if (!claim.appointment_start) return "No appointment scheduled";
+
+        // Parse the ISO string and display the exact time stored
         const date = new Date(claim.appointment_start);
-        return `Start: ${date.toLocaleString("en-US", {
+
+        // Format date and time without timezone conversion
+        const options = {
           weekday: "short",
           year: "numeric",
           month: "short",
           day: "numeric",
           hour: "numeric",
           minute: "2-digit",
-        })}`;
+          hour12: true,
+        };
+
+        return `Start: ${date.toLocaleString("en-US", options)}`;
       }
     </script>
   </body>

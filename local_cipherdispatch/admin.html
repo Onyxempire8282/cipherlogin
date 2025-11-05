@@ -314,15 +314,22 @@
 
       function formatAppointment(claim) {
         if (!claim.appointment_start) return "No appointment scheduled";
+
+        // Parse the ISO string and display the exact time stored
         const date = new Date(claim.appointment_start);
-        return `Start: ${date.toLocaleString("en-US", {
+
+        // Format date and time without timezone conversion
+        const options = {
           weekday: "short",
           year: "numeric",
           month: "short",
           day: "numeric",
           hour: "numeric",
           minute: "2-digit",
-        })}`;
+          hour12: true,
+        };
+
+        return `Start: ${date.toLocaleString("en-US", options)}`;
       }
 
       function downloadCSV() {

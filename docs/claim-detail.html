@@ -627,6 +627,15 @@
             }" style="display:none; flex:1; padding:8px; background:#1a202c; border:1px solid #4a5568; border-radius:4px; color:#e2e8f0;">
           </div>
           <div class="detail-row">
+            <span class="detail-label">Firm Name:</span>
+            <span class="detail-value" id="view-firm-name">${
+              currentClaim.firm_name || "N/A"
+            }</span>
+            <input type="text" id="edit-firm-name" value="${
+              currentClaim.firm_name || ""
+            }" style="display:none; flex:1; padding:8px; background:#1a202c; border:1px solid #4a5568; border-radius:4px; color:#e2e8f0;">
+          </div>
+          <div class="detail-row">
             <span class="detail-label">Address Line 1:</span>
             <span class="detail-value" id="view-address-line1">${
               currentClaim.address_line1 || "N/A"
@@ -983,6 +992,7 @@
           "customer-name",
           "phone",
           "email",
+          "firm-name",
           "address-line1",
           "address-line2",
           "city",
@@ -1018,6 +1028,7 @@
           "customer-name",
           "phone",
           "email",
+          "firm-name",
           "address-line1",
           "address-line2",
           "city",
@@ -1053,6 +1064,7 @@
             customer_name: document.getElementById("edit-customer-name").value,
             phone: document.getElementById("edit-phone").value,
             email: document.getElementById("edit-email").value,
+            firm_name: document.getElementById("edit-firm-name").value,
             address_line1: document.getElementById("edit-address-line1").value,
             address_line2: document.getElementById("edit-address-line2").value,
             city: document.getElementById("edit-city").value,

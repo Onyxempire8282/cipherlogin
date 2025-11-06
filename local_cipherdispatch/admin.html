@@ -310,23 +310,24 @@
             const aptDate = new Date(claim.appointment_start);
             aptDate.setHours(0, 0, 0, 0);
 
+            const fullDate = aptDate.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            });
+
             if (claim.status === "COMPLETED") {
               dateKey = "Completed";
             } else if (aptDate.getTime() === today.getTime()) {
-              dateKey = "Today";
+              dateKey = `Today (${fullDate})`;
             } else if (aptDate.getTime() === tomorrow.getTime()) {
-              dateKey = "Tomorrow";
+              dateKey = `Tomorrow (${fullDate})`;
             } else if (aptDate < today) {
-              dateKey = "Overdue";
+              dateKey = `Overdue (${fullDate})`;
             } else if (aptDate < nextWeek) {
-              dateKey = "This Week";
+              dateKey = `This Week (${fullDate})`;
             } else {
-              dateKey = aptDate.toLocaleDateString("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              });
+              dateKey = fullDate;
             }
           }
 
@@ -340,8 +341,13 @@
         const sortOrder = ["Overdue", "Today", "Tomorrow", "This Week"];
         const sortedGroups = {};
 
+        // Add priority groups (match keys that start with these)
         sortOrder.forEach((key) => {
-          if (groups[key]) sortedGroups[key] = groups[key];
+          Object.keys(groups).forEach((groupKey) => {
+            if (groupKey.startsWith(key)) {
+              sortedGroups[groupKey] = groups[groupKey];
+            }
+          });
         });
 
         // Add other dated groups

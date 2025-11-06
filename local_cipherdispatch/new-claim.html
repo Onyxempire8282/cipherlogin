@@ -83,6 +83,13 @@
             <label>Email</label>
             <input type="email" id="email" placeholder="Enter email" />
 
+            <label>Firm Name (Insurance Company)</label>
+            <input
+              type="text"
+              id="firm_name"
+              placeholder="Enter insurance company / firm name"
+            />
+
             <label>VIN</label>
             <input type="text" id="vin" placeholder="Enter VIN" />
 
@@ -208,6 +215,7 @@
           customer_name: document.getElementById("customer_name").value,
           phone: document.getElementById("phone").value || null,
           email: document.getElementById("email").value || null,
+          firm_name: document.getElementById("firm_name").value || null,
           vin: document.getElementById("vin").value || null,
           vehicle_year: document.getElementById("vehicle_year").value || null,
           vehicle_make: document.getElementById("vehicle_make").value || null,

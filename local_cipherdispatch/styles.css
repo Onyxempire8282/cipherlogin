@@ -296,6 +296,9 @@ button:disabled {
 .status.scheduled {
   background: #3b82f6;
 }
+.status.canceled {
+  background: #ef4444;
+}
 .status.none {
   background: #6b7280;
 }

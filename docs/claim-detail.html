@@ -64,6 +64,9 @@
       .status-SCHEDULED {
         background: #3b82f6;
       }
+      .status-CANCELED {
+        background: #ef4444;
+      }
       .status-NONE {
         background: #6b7280;
       }
@@ -678,6 +681,9 @@
             </button>
             <button class="btn btn-complete" onclick="updateStatus('COMPLETED')">
               ✅ Mark Complete
+            </button>
+            <button class="btn" style="background:#f59e0b;" onclick="updateStatus('CANCELED')">
+              ❌ Cancel Claim
             </button>
           </div>
 

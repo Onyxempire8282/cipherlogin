@@ -133,16 +133,22 @@
 
             // Load photo count for each claim
             try {
-              const { data: photoData, error: photoError } = await supabaseClient.storage
-                .from("claim-photos")
-                .list(`${claim.id}/`);
-              
+              const { data: photoData, error: photoError } =
+                await supabaseClient.storage
+                  .from("claim-photos")
+                  .list(`${claim.id}/`);
+
               if (photoError) {
-                console.warn(`Photo list error for claim ${claim.id}:`, photoError);
+                console.warn(
+                  `Photo list error for claim ${claim.id}:`,
+                  photoError
+                );
                 claim.photoCount = 0;
               } else {
                 claim.photoCount = photoData ? photoData.length : 0;
-                console.log(`Claim ${claim.claim_number}: ${claim.photoCount} photos`);
+                console.log(
+                  `Claim ${claim.claim_number}: ${claim.photoCount} photos`
+                );
               }
             } catch (error) {
               console.warn(
@@ -184,6 +190,9 @@
         const completedCount = allClaims.filter(
           (c) => c.status === "COMPLETED"
         ).length;
+        const canceledCount = allClaims.filter(
+          (c) => c.status === "CANCELED"
+        ).length;
 
         // Update status summary
         document.getElementById("status-summary").innerHTML = `
@@ -199,12 +208,16 @@
             <div style="font-size:24px; font-weight:bold; color:#10b981;">${completedCount}</div>
             <div style="color:#e2e8f0; font-size:14px;">✅ Completed</div>
           </div>
+          <div style="background:#2d3748; padding:16px 24px; border-radius:8px; border:2px solid #ef4444;">
+            <div style="font-size:24px; font-weight:bold; color:#ef4444;">${canceledCount}</div>
+            <div style="color:#e2e8f0; font-size:14px;">❌ Canceled</div>
+          </div>
         `;
 
         const filteredClaims = allClaims.filter((claim) =>
           showArchived
-            ? claim.status === "COMPLETED"
-            : claim.status !== "COMPLETED"
+            ? claim.status === "COMPLETED" || claim.status === "CANCELED"
+            : claim.status !== "COMPLETED" && claim.status !== "CANCELED"
         );
 
         if (filteredClaims.length === 0) {
@@ -358,6 +371,7 @@
           COMPLETED: "completed",
           IN_PROGRESS: "in-progress",
           SCHEDULED: "scheduled",
+          CANCELED: "canceled",
           NONE: "none",
         };
         return map[status] || "none";

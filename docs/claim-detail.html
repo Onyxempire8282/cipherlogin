@@ -461,23 +461,15 @@
 
         async function checkNotifications() {
           try {
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-            const { data: claims, error } = await supabaseClient
-              .from("claims")
+            const { data: notifications, error } = await supabaseClient
+              .from("notifications")
               .select("id")
-              .eq("assigned_to", currentUser.id)
-              .gte("created_at", sevenDaysAgo.toISOString());
+              .eq("user_id", currentUserId)
+              .eq("is_read", false);
 
             if (error) throw error;
 
-            const readNotifications = JSON.parse(
-              localStorage.getItem("readNotifications") || "[]"
-            );
-            const unreadCount = (claims || []).filter(
-              (c) => !readNotifications.includes(c.id)
-            ).length;
+            const unreadCount = (notifications || []).length;
 
             if (unreadCount > 0) {
               const badge = document.getElementById("notification-badge");
@@ -497,6 +489,26 @@
             '<div class="detail-card"><div style="text-align:center; color:#ef4444;">Invalid claim ID</div></div>';
         }
       })();
+
+      // Helper function to create notifications
+      async function createNotification(userId, claimId, type, message, oldValue, newValue) {
+        try {
+          const { error } = await supabaseClient.rpc('create_notification', {
+            p_user_id: userId,
+            p_claim_id: claimId,
+            p_type: type,
+            p_message: message,
+            p_old_value: oldValue,
+            p_new_value: newValue
+          });
+          
+          if (error) {
+            console.error("Error creating notification:", error);
+          }
+        } catch (error) {
+          console.error("Error creating notification:", error);
+        }
+      }
 
       function formatDateTimeLocal(isoString) {
         if (!isoString) return "";
@@ -815,12 +827,27 @@
 
       async function updateStatus(status) {
         try {
+          const oldStatus = currentClaim.status;
+          
           const { error } = await supabaseClient
             .from("claims")
             .update({ status })
             .eq("id", claimId);
 
           if (error) throw error;
+          
+          // Create notification for appraiser if assigned
+          if (currentClaim.assigned_to) {
+            await createNotification(
+              currentClaim.assigned_to,
+              claimId,
+              status === 'CANCELED' ? 'CANCELED' : 'STATUS_CHANGED',
+              `Claim #${currentClaim.claim_number} status changed from ${oldStatus} to ${status}`,
+              oldStatus,
+              status
+            );
+          }
+          
           await loadClaim();
           alert(`Status updated to ${status}`);
         } catch (error) {
@@ -830,12 +857,27 @@
 
       async function assignAppraiser(appraiserId) {
         try {
+          const oldAppraiserId = currentClaim.assigned_to;
+          
           const { error } = await supabaseClient
             .from("claims")
             .update({ assigned_to: appraiserId || null })
             .eq("id", claimId);
 
           if (error) throw error;
+          
+          // Create notification for newly assigned appraiser
+          if (appraiserId && appraiserId !== oldAppraiserId) {
+            await createNotification(
+              appraiserId,
+              claimId,
+              'ASSIGNED',
+              `You have been assigned to claim #${currentClaim.claim_number}`,
+              oldAppraiserId,
+              appraiserId
+            );
+          }
+          
           await loadClaim();
           alert(
             appraiserId

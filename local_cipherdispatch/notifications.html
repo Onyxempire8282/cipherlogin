@@ -162,32 +162,39 @@
 
       async function loadNotifications() {
         try {
-          // Get claims assigned to this user that are new (within last 7 days)
-          const sevenDaysAgo = new Date();
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-          const { data: claims, error } = await supabaseClient
-            .from("claims")
-            .select("*")
-            .eq("assigned_to", currentUserId)
-            .gte("created_at", sevenDaysAgo.toISOString())
-            .order("created_at", { ascending: false });
+          // Query the new notifications table with claim details
+          const { data: notifs, error } = await supabaseClient
+            .from("notifications")
+            .select(
+              `
+              *,
+              claims!notifications_claim_id_fkey (
+                claim_number,
+                customer_name,
+                status,
+                appointment_start
+              )
+            `
+            )
+            .eq("user_id", currentUserId)
+            .order("created_at", { ascending: false })
+            .limit(50);
 
           if (error) throw error;
 
-          // Check localStorage for read notifications
-          const readNotifications = JSON.parse(
-            localStorage.getItem("readNotifications") || "[]"
-          );
-
-          notifications = (claims || []).map((claim) => ({
-            id: claim.id,
-            claim_number: claim.claim_number,
-            customer_name: claim.customer_name,
-            status: claim.status,
-            appointment_start: claim.appointment_start,
-            created_at: claim.created_at,
-            isRead: readNotifications.includes(claim.id),
+          notifications = (notifs || []).map((notif) => ({
+            id: notif.id,
+            claim_id: notif.claim_id,
+            claim_number: notif.claims?.claim_number || "Unknown",
+            customer_name: notif.claims?.customer_name || "Unknown",
+            status: notif.claims?.status,
+            appointment_start: notif.claims?.appointment_start,
+            type: notif.type,
+            message: notif.message,
+            old_value: notif.old_value,
+            new_value: notif.new_value,
+            created_at: notif.created_at,
+            isRead: notif.is_read,
           }));
 
           renderNotifications();
@@ -209,8 +216,8 @@
           document.getElementById("notifications-container").innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon">🔔</div>
-              <h3 style="color:#e2e8f0; margin-bottom:8px;">No New Notifications</h3>
-              <p>You're all caught up! New claim assignments will appear here.</p>
+              <h3 style="color:#e2e8f0; margin-bottom:8px;">No Notifications</h3>
+              <p>You're all caught up! New notifications will appear here.</p>
             </div>
           `;
           return;
@@ -222,32 +229,57 @@
           html += `
             <div style="background:rgba(102, 126, 234, 0.2); padding:12px 16px; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
               <span class="notification-badge">${unreadCount}</span>
-              <span style="color:#e2e8f0; font-weight:bold;">You have ${unreadCount} new claim${
+              <span style="color:#e2e8f0; font-weight:bold;">You have ${unreadCount} unread notification${
             unreadCount !== 1 ? "s" : ""
-          } assigned to you</span>
+          }</span>
             </div>
           `;
         }
 
         notifications.forEach((notification) => {
           const timeAgo = getTimeAgo(notification.created_at);
-          const appointmentText = notification.appointment_start
-            ? formatAppointmentShort(notification.appointment_start)
-            : "No appointment set";
+
+          // Get icon and color based on notification type
+          let icon = "🔔";
+          let bgColor = "rgba(102, 126, 234, 0.1)";
+          let borderColor = "#667eea";
+
+          if (notification.type === "ASSIGNED") {
+            icon = "🆕";
+            bgColor = "rgba(102, 126, 234, 0.1)";
+            borderColor = "#667eea";
+          } else if (notification.type === "STATUS_CHANGED") {
+            icon = "🔄";
+            bgColor = "rgba(251, 146, 60, 0.1)";
+            borderColor = "#fb923c";
+          } else if (notification.type === "CANCELED") {
+            icon = "❌";
+            bgColor = "rgba(239, 68, 68, 0.1)";
+            borderColor = "#ef4444";
+          } else if (notification.type === "UPDATED") {
+            icon = "✏️";
+            bgColor = "rgba(16, 185, 129, 0.1)";
+            borderColor = "#10b981";
+          }
 
           html += `
-            <a href="claim-detail.html?id=${notification.id}" 
+            <a href="claim-detail.html?id=${notification.claim_id}" 
                class="notification-card ${!notification.isRead ? "unread" : ""}"
+               style="${
+                 !notification.isRead
+                   ? `background:${bgColor}; border-left-color:${borderColor};`
+                   : ""
+               }"
                onclick="markAsRead('${notification.id}')">
-              <div class="notification-icon">${
-                !notification.isRead ? "🆕" : "✅"
-              }</div>
+              <div class="notification-icon">${icon}</div>
               <div class="notification-content">
                 <div class="notification-title">
-                  New Claim Assigned: #${notification.claim_number}
+                  ${notification.message}
                 </div>
                 <div class="notification-message">
-                  Customer: ${notification.customer_name} • ${appointmentText}
+                  Customer: ${notification.customer_name} • Claim #${
+            notification.claim_number
+          }
                 </div>
                 <div class="notification-time">${timeAgo}</div>
               </div>
@@ -263,24 +295,45 @@
         document.getElementById("notifications-container").innerHTML = html;
       }
 
-      function markAsRead(claimId) {
-        const readNotifications = JSON.parse(
-          localStorage.getItem("readNotifications") || "[]"
-        );
-        if (!readNotifications.includes(claimId)) {
-          readNotifications.push(claimId);
-          localStorage.setItem(
-            "readNotifications",
-            JSON.stringify(readNotifications)
-          );
-        }
+      function markAsRead(notificationId) {
+        // Update notification as read in database
+        supabaseClient
+          .from("notifications")
+          .update({ is_read: true })
+          .eq("id", notificationId)
+          .then(() => {
+            // Update local state
+            const notif = notifications.find((n) => n.id === notificationId);
+            if (notif) {
+              notif.isRead = true;
+              renderNotifications();
+            }
+          })
+          .catch((error) => {
+            console.error("Error marking notification as read:", error);
+          });
       }
 
       document.getElementById("mark-all-read").addEventListener("click", () => {
-        const allIds = notifications.map((n) => n.id);
-        localStorage.setItem("readNotifications", JSON.stringify(allIds));
-        notifications.forEach((n) => (n.isRead = true));
-        renderNotifications();
+        const unreadIds = notifications
+          .filter((n) => !n.isRead)
+          .map((n) => n.id);
+
+        if (unreadIds.length === 0) return;
+
+        // Update all unread notifications in database
+        supabaseClient
+          .from("notifications")
+          .update({ is_read: true })
+          .in("id", unreadIds)
+          .then(() => {
+            // Update local state
+            notifications.forEach((n) => (n.isRead = true));
+            renderNotifications();
+          })
+          .catch((error) => {
+            console.error("Error marking all as read:", error);
+          });
       });
 
       function getTimeAgo(dateString) {
@@ -300,17 +353,6 @@
           month: "short",
           day: "numeric",
           year: "numeric",
-        });
-      }
-
-      function formatAppointmentShort(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
         });
       }
     </script>

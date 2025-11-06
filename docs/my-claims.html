@@ -102,23 +102,15 @@
 
       async function checkNotifications() {
         try {
-          const sevenDaysAgo = new Date();
-          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-          const { data: claims, error } = await supabaseClient
-            .from("claims")
+          const { data: notifications, error } = await supabaseClient
+            .from("notifications")
             .select("id")
-            .eq("assigned_to", currentUserId)
-            .gte("created_at", sevenDaysAgo.toISOString());
+            .eq("user_id", currentUserId)
+            .eq("is_read", false);
 
           if (error) throw error;
 
-          const readNotifications = JSON.parse(
-            localStorage.getItem("readNotifications") || "[]"
-          );
-          const unreadCount = (claims || []).filter(
-            (c) => !readNotifications.includes(c.id)
-          ).length;
+          const unreadCount = (notifications || []).length;
 
           if (unreadCount > 0) {
             const badge = document.getElementById("notification-badge");
